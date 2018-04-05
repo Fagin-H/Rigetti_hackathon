@@ -1,0 +1,1 @@
+Rigetti hackathon, measurement based quantum computing

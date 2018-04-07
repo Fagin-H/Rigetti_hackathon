@@ -6,6 +6,7 @@ This is a temporary script file.
 """
 
 import pyquil.quil as pq
+from pyquil.quil import Program
 from pyquil import api
 from pyquil.gates import *
 
@@ -20,8 +21,18 @@ def ymes(qu,cl):
 def zmes(qu,cl):
     return [MEASURE(qu,cl)]
 
-p = pq.Program([H(1),H(2),H(3),H(4),CZ(0,1),CZ(1,2),CZ(2,3),CZ(3,4)],zmes(0,[0]),ymes(1,[1]),ymes(2,[2]),ymes(3,[3]),H(4),zmes(4,[4]))
+def parcheck(inc,outc):
+    tempp = Program().if_then(outc,Program(NOT(outc)))
+    for i in inc:
+        tempp.if_then(i,Program(NOT(outc)))
+    return tempp
 
-p2 = pq.Program(MEASURE(0,[0]))
+p = Program([H(1),H(2),H(3),H(4),CZ(0,1),CZ(1,2),CZ(2,3),CZ(3,4)],
+                zmes(0,[0]),ymes(1,[1]),ymes(2,[2]),ymes(3,[3]),
+                parcheck([0,2,3],5),
+                parcheck([1,2],6),
+                Program().if_then(6,Program(Z(4))),
+                Program().if_then(5,Program(X(4))),
+                H(4),zmes(4,[4]))
 
-qvm.run(p2,[0])
+print(qvm.run(p,[1,2,6],10))

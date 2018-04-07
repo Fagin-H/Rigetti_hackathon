@@ -32,9 +32,9 @@ connectors1 = [(0,6),(9,14),(19,14),(13,19),(8,13),(2,8),(13,18),(12,18),(12,17)
 connectors2 = [(7,2),(1,6)]
 
 xmeasures = [0,7,2,8,19,14]
-ymeasures = [6,1,12,17,11,16,18,13]
+ymeasures = [6,1,12,17,11,18,13]
 
-p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 7],
+p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 7 and i != 4 and i != 5 and i != 10 and i != 15],
             zmes(0,25),
             zmes(7,26),
             [CZ(i[0],i[1]) for i in connectors],
@@ -44,7 +44,7 @@ p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 7],
             [xmes(i,i) for i in xmeasures],
             [ymes(i,i) for i in ymeasures],
 
-            parcheck([6,1,17,11],20),
+            parcheck([1,6,17,11],20),
             parcheck([6,1,18,2,13,14],21),
             parcheck([0,1,12,17,18,7,8],22),
             parcheck([7,8,19],23),
@@ -59,12 +59,13 @@ p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 7],
         )
 
 
-print(qvm.run(p,[25,26,27,28],10))
-
-
-
-
-
+#print(qvm.wavefunction(p))
+print(qvm.run(p,[25,26,27,28],5))
+#data = qvm.run(p,[27],100)
+#total = 0
+#for i in data:
+#    total += i[0]
+#print(total)
 
 
 

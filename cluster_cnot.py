@@ -13,9 +13,9 @@ from pyquil.gates import *
 from pyquil.api import CompilerConnection, get_devices
 from pyquil.quil import Pragma
 
-devices = get_devices(as_dict=True)
-acorn = devices['19Q-Acorn']
-compiler = CompilerConnection(acorn)
+#devices = get_devices(as_dict=True)
+#acorn = devices['19Q-Acorn']
+#compiler = CompilerConnection(acorn)
 
 qvm = api.QVMConnection()
 qpu = api.QPUConnection('19Q-Acorn')
@@ -29,11 +29,6 @@ def ymes(qu,cl):
 def zmes(qu,cl):
     return [MEASURE(qu,cl)]
 
-def parcheck(inc,outc):
-    tempp = Program().if_then(outc,Program(NOT(outc)))
-    for i in inc:
-        tempp.if_then(i,Program(NOT(outc)))
-    return tempp
 
 connectors = [(7,2),(2,8),(8,13),(13,19),(19,14),(14,9),(0,6),(6,1),(1,12),(12,17),(17,11),(11,16),(12,18),(18,13)]
 connectors1 = [(0,6),(9,14),(19,14),(13,19),(8,13),(2,8),(13,18),(12,18),(12,17),(17,11),(11,16),(7,12)]
@@ -51,15 +46,6 @@ p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 4 and i != 5 
             [xmes(i,i) for i in xmeasures],
             [ymes(i,i) for i in ymeasures],
 
-#            parcheck([1,6,17,11],20),
-#            parcheck([6,1,18,2,13,14],21),
-#            parcheck([0,1,12,17,18,7,8],22),
-#            parcheck([7,8,19],23),
-#            
-#            Program().if_then(20,X(16)),
-#            Program().if_then(21,X(9)),
-#            Program().if_then(22,Program(),Z(16)),
-#            Program().if_then(23,Z(9)),
             
             MEASURE(16,27),
             MEASURE(9,28),
@@ -75,33 +61,34 @@ p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 4 and i != 5 
 #print('topological swaps', job.topological_swaps())
 #print('program fidelity', job.program_fidelity())
 #print('multiqubit gate depth', job.multiqubit_gate_depth())
-data = qpu.run(p,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,25,26,27,28],1000)
+data = qvm.run(p,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,25,26,27,28],100)
+print(data)
 #
 #for item in data:
 #    print(item[-4:])
 
-realdata = []
-for item in data:
-    if (item[1]+item[6]+item[17]+item[11]
-        ) % 2 == 0 and (item[6]+item[1]+item[18]+item[2]+item[13]+item[14]
-        ) % 2 == 0 and (item[0]+item[1]+item[12]+item[17]+item[18]+item[7]+item[8]
-        ) % 2 == 1 and (item[7]+item[8]+item[19]
-        ) % 2 == 0:
-        realdata.append(item[-4:])
-
-succhance = 0
-
-for item in realdata:
-    if item[0] == 0:
-        if item[2] == 0 and item[1] == item[3]:
-            succhance += 1
-    else:
-        if item[2] == 1 and item[1] != item[3]:
-            succhance += 1
-    
-succhance =  succhance*100/len(realdata)
-    
-print(str(succhance)+'% success, random chance = 25%')
+#realdata = []
+#for item in data:
+#    if (item[1]+item[6]+item[17]+item[11]
+#        ) % 2 == 0 and (item[6]+item[1]+item[18]+item[2]+item[13]+item[14]
+#        ) % 2 == 0 and (item[0]+item[1]+item[12]+item[17]+item[18]+item[7]+item[8]
+#        ) % 2 == 1 and (item[7]+item[8]+item[19]
+#        ) % 2 == 0:
+#        realdata.append(item[-4:])
+#
+#succhance = 0
+#
+#for item in realdata:
+#    if item[0] == 0:
+#        if item[2] == 0 and item[1] == item[3]:
+#            succhance += 1
+#    else:
+#        if item[2] == 1 and item[1] != item[3]:
+#            succhance += 1
+#    
+#succhance =  succhance*100/len(realdata)
+#    
+#print(str(succhance)+'% success, random chance = 25%')
 #print(realdata)
     
     

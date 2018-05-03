@@ -37,21 +37,32 @@ connectors2 = [(7,2),(1,6)]
 xmeasures = [0,7,2,8,19,14]
 ymeasures = [6,1,12,17,11,18,13]
 
-p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 4 and i != 5 and i != 10 and i != 15],
-            [CZ(i[0],i[1]) for i in connectors1],
-            SWAP(7,1),
-            H(7),
-            [CZ(i[0],i[1]) for i in connectors2],
-            
-            [xmes(i,i) for i in xmeasures],
-            [ymes(i,i) for i in ymeasures],
+def prog(ini,fin):
+    p = Program(ini, [H(i) for i in range(20) if i != 3 and i != 0 and i != 7 and i != 4 and i != 5 and i != 10 and i != 15],
+                [CZ(i[0],i[1]) for i in connectors1],
+                SWAP(7,1),
+                H(7),
+                [CZ(i[0],i[1]) for i in connectors2],
+                
+                [xmes(i,i) for i in xmeasures],
+                [ymes(i,i) for i in ymeasures],
+                fin
+    
+                
+            )
 
-            
-            MEASURE(16,27),
-            MEASURE(9,28),
-            
-        )
 
+
+
+ins = []
+fins = []
+
+for i in range(len(ins)):
+    for j in range(len(fins)):
+        p = prog(ins[i],fins[j])
+        tempdata = qvm.run(p,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],10)
+        np.save(open('cnotdata/data'+str(i)+str(j)+'.txt','wb'),tempdata)
+    
 #job_id = compiler.compile_async(p)
 #job = compiler.wait_for_job(job_id)
 #
@@ -61,36 +72,6 @@ p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 4 and i != 5 
 #print('topological swaps', job.topological_swaps())
 #print('program fidelity', job.program_fidelity())
 #print('multiqubit gate depth', job.multiqubit_gate_depth())
-data = qvm.run(p,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,25,26,27,28],100)
-print(data)
-#
-#for item in data:
-#    print(item[-4:])
-
-#realdata = []
-#for item in data:
-#    if (item[1]+item[6]+item[17]+item[11]
-#        ) % 2 == 0 and (item[6]+item[1]+item[18]+item[2]+item[13]+item[14]
-#        ) % 2 == 0 and (item[0]+item[1]+item[12]+item[17]+item[18]+item[7]+item[8]
-#        ) % 2 == 1 and (item[7]+item[8]+item[19]
-#        ) % 2 == 0:
-#        realdata.append(item[-4:])
-#
-#succhance = 0
-#
-#for item in realdata:
-#    if item[0] == 0:
-#        if item[2] == 0 and item[1] == item[3]:
-#            succhance += 1
-#    else:
-#        if item[2] == 1 and item[1] != item[3]:
-#            succhance += 1
-#    
-#succhance =  succhance*100/len(realdata)
-#    
-#print(str(succhance)+'% success, random chance = 25%')
-#print(realdata)
-    
     
     
     

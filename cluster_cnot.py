@@ -42,15 +42,11 @@ connectors2 = [(7,2),(1,6)]
 xmeasures = [0,7,2,8,19,14]
 ymeasures = [6,1,12,17,11,18,13]
 
-p = Program(H(0),H(7),
-            MEASURE(0,25),
-            MEASURE(7,26),
-            [H(i) for i in range(20) if i != 3 and i != 0 and i != 7 and i != 4 and i != 5 and i != 10 and i != 15],
-            [CZ(i[0],i[1]) for i in connectors],
-#            SWAP(7,1),
-#            H(7),
-#            zmes(7,26),
-#            [CZ(i[0],i[1]) for i in connectors2],
+p = Program([H(i) for i in range(20) if i != 3 and i != 0 and i != 4 and i != 5 and i != 10 and i != 15],
+            [CZ(i[0],i[1]) for i in connectors1],
+            SWAP(7,1),
+            H(7),
+            [CZ(i[0],i[1]) for i in connectors2],
             
             [xmes(i,i) for i in xmeasures],
             [ymes(i,i) for i in ymeasures],
@@ -66,7 +62,8 @@ p = Program(H(0),H(7),
 #            Program().if_then(23,Z(9)),
             
             MEASURE(16,27),
-            MEASURE(9,28)
+            MEASURE(9,28),
+            
         )
 
 #job_id = compiler.compile_async(p)
@@ -104,7 +101,8 @@ for item in realdata:
     
 succhance =  succhance*100/len(realdata)
     
-print(succhance)
+print(str(succhance)+'% success, random chance = 25%')
+#print(realdata)
     
     
     

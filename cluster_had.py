@@ -45,15 +45,23 @@ def prog(ini,fin):
     return p
 
 
-ins = [[I(0)],[X(0)],[H(0)],[Z(0),S(0),H(0)]]
-fins = [[MEASURE(4,[4])],[H(4),MEASURE(4,[4])],[Z(4),S(4),H(4),MEASURE(4,[4])]]
+def generate_data(trials):
+    ins = [[I(0)],[X(0)],[H(0)],[Z(0),S(0),H(0)]]
+    fins = [[MEASURE(4,[4])],[H(4),MEASURE(4,[4])],[Z(4),S(4),H(4),MEASURE(4,[4])]]
 
-for i in range(4):
-    for j in range(3):
-        p = prog(ins[i],fins[j])
-        tempdata = qvm.run(p,[0,1,2,3,4],10)
-        np.save(open('data/data'+str(i)+str(j)+'.txt','wb'),tempdata)
+    for i in range(len(ins)):
+        for j in range(len(fins)):
+            p = prog(ins[i],fins[j])
+            tempdata = qvm.run(p,[0,1,2,3,4],trials)
+            np.save(open('haddata/data'+str(i)+str(j)+'.txt','wb'),tempdata)
     
+def postselect_data():
+    for i in range(4):
+        for j in range(3):
+            temp = np.load('haddata/data'+str(i)+str(j)+'.txt')
+            temp = postselect(temp)
+            np.save(open('posthaddata/postdata'+str(i)+str(j)+'.txt','wb'),temp)
+
 #data = qvm.run(p,[0,1,2,3,4],10)
 #np.save(open('data/test.txt','wb'),data)
 

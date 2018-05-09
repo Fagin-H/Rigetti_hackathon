@@ -22,14 +22,8 @@ qvm = api.QVMConnection()
 qpu = api.QPUConnection('19Q-Acorn')
 
 
-def xmes(qu,cl):
-    return [H(qu),MEASURE(qu,cl)]
-    
-def ymes(qu,cl):
-    return [Z(qu),S(qu),H(qu),MEASURE(qu,cl)]
+qubits = [[10,16,11,17,12],[4,9,14,19,13]]
 
-def zmes(qu,cl):
-    return [MEASURE(qu,cl)]
 
 def postselect_had(data):
     newdata = []
@@ -38,20 +32,20 @@ def postselect_had(data):
             newdata.append([item[-1]])
     return newdata
 
-def Hadamard(ini,fin):
-    p = Program([ini,H(16),H(11),H(17),H(12)],
-                [CZ(10,16),CZ(16,11),CZ(11,17),CZ(17,12)],
-                H(10),Z(16),S(16),H(16),Z(11),S(11),H(11),Z(17),S(17),H(17),
-                [MEASURE(10,[0]),MEASURE(16,[1]),MEASURE(11,[2]),MEASURE(17,[3]),fin])
+def Hadamard(ini,fin,qubit):
+    p = Program([ini,H(qubit[1]),H(qubit[2]),H(qubit[3]),H(qubit[4])],
+                [CZ(qubit[0],qubit[1]),CZ(qubit[1],qubit[2]),CZ(qubit[2],qubit[3]),CZ(qubit[3],qubit[4])],
+                H(qubit[0]),Z(qubit[1]),S(qubit[1]),H(qubit[1]),Z(qubit[2]),S(qubit[2]),H(qubit[2]),Z(qubit[3]),S(qubit[3]),H(qubit[3]),
+                [MEASURE(qubit[0],[0]),MEASURE(qubit[1],[1]),MEASURE(qubit[2],[2]),MEASURE(qubit[3],[3]),fin])
     return p
 
-def generate_had_data(trials):
-    ins = [[I(10)],[X(10)],[H(10)],[H(10),S(10)]]
-    fins = [[MEASURE(12,[4])],[H(12),MEASURE(12,[4])],[Z(12),S(12),H(12),MEASURE(12,[4])]]
+def generate_had_data(trials,qubit):
+    ins = [[I(qubit[0])],[X(qubit[0])],[H(qubit[0])],[H(qubit[0]),S(qubit[0])]]
+    fins = [[MEASURE(qubit[4],[4])],[H(qubit[4]),MEASURE(qubit[4],[4])],[Z(qubit[4]),S(qubit[4]),H(qubit[4]),MEASURE(qubit[4],[4])]]
 
     for i in range(len(ins)):
         for j in range(len(fins)):
-            p = Hadamard(ins[i],fins[j])
+            p = Hadamard(ins[i],fins[j],qubit)
             tempdata = qpu.run(p,[0,1,2,3,4],trials)
             np.save(open('haddata/data'+str(i)+str(j)+'.txt','wb'),tempdata)
     
@@ -62,20 +56,20 @@ def postselect_had_data():
             temp = postselect_had(temp)
             np.save(open('posthaddata/postdata'+str(i)+str(j)+'.txt','wb'),temp)
             
-def pi_over_2(ini,fin):
-    p = Program([ini,H(16),H(11),H(17),H(12)],
-                [CZ(10,16),CZ(16,11),CZ(11,17),CZ(17,12)],
-                H(10),H(16),Z(11),S(11),H(11),H(17),
-                [MEASURE(10,[0]),MEASURE(16,[1]),MEASURE(11,[2]),MEASURE(17,[3]),fin])
+def pi_over_2(ini,fin,qubit):
+    p = Program([ini,H(qubit[1]),H(qubit[2]),H(qubit[3]),H(qubit[4])],
+                [CZ(qubit[0],qubit[1]),CZ(qubit[1],qubit[2]),CZ(qubit[2],qubit[3]),CZ(qubit[3],qubit[4])],
+                H(qubit[0]),H(qubit[1]),Z(qubit[2]),S(qubit[2]),H(qubit[2]),H(qubit[3]),
+                [MEASURE(qubit[0],[0]),MEASURE(qubit[1],[1]),MEASURE(qubit[2],[2]),MEASURE(qubit[3],[3]),fin])
     return p
 
-def generate_pi2_data(trials):
-    ins = [[I(10)],[X(10)],[H(10)],[H(10),S(10)]]
-    fins = [[MEASURE(12,[4])],[H(12),MEASURE(12,[4])],[Z(12),S(12),H(12),MEASURE(12,[4])]]
+def generate_pi2_data(trials,qubit):
+    ins = [[I(qubit[0])],[X(qubit[0])],[H(qubit[0])],[H(qubit[0]),S(qubit[0])]]
+    fins = [[MEASURE(qubit[4],[4])],[H(qubit[4]),MEASURE(qubit[4],[4])],[Z(qubit[4]),S(qubit[4]),H(qubit[4]),MEASURE(qubit[4],[4])]]
 
     for i in range(len(ins)):
         for j in range(len(fins)):
-            p = pi_over_2(ins[i],fins[j])
+            p = pi_over_2(ins[i],fins[j],qubit)
             tempdata = qpu.run(p,[0,1,2,3,4],trials)
             np.save(open('pi2data/data'+str(i)+str(j)+'.txt','wb'),tempdata)
             
@@ -120,8 +114,17 @@ def process_tomog(folder):
     return chi,qpt_plot_combined(chi,[["i", "x", "iy", "z"]],'Hadamard')
     
 
-#data = qvm.run(p,[0,1,2,3,4],10)
-#np.save(open('data/test.txt','wb'),data)
+def codeinfo():
+    job_id = compiler.compile_async(Hadamard([I(10)],[MEASURE(12,[4])]))
+    job = compiler.wait_for_job(job_id)
+    
+    print('compiled quil', job.compiled_quil())
+    print('gate volume', job.gate_volume())
+    print('gate depth', job.gate_depth())
+    print('topological swaps', job.topological_swaps())
+    print('program fidelity', job.program_fidelity())
+    print('multiqubit gate depth', job.multiqubit_gate_depth())
+
 
 
 

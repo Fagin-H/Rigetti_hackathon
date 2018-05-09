@@ -46,7 +46,7 @@ def generate_had_data(trials,qubit):
     for i in range(len(ins)):
         for j in range(len(fins)):
             p = Hadamard(ins[i],fins[j],qubit)
-            tempdata = qpu.run(p,[0,1,2,3,4],trials)
+            tempdata = qvm.run(p,[0,1,2,3,4],trials)
             np.save(open('haddata/data'+str(i)+str(j)+'.txt','wb'),tempdata)
     
 def postselect_had_data():
@@ -70,7 +70,7 @@ def generate_pi2_data(trials,qubit):
     for i in range(len(ins)):
         for j in range(len(fins)):
             p = pi_over_2(ins[i],fins[j],qubit)
-            tempdata = qpu.run(p,[0,1,2,3,4],trials)
+            tempdata = qvm.run(p,[0,1,2,3,4],trials)
             np.save(open('pi2data/data'+str(i)+str(j)+'.txt','wb'),tempdata)
             
 def postselect_pi2(data):
